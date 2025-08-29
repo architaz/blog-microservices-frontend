@@ -21,7 +21,6 @@ const BlogApp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-
   // Form states
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
   const [registerForm, setRegisterForm] = useState({ username: '', email: '', password: '' });
@@ -271,7 +270,7 @@ const BlogApp = () => {
                   </button>
                   <button
                     onClick={() => setCurrentUser(null)}
-                    className="text-blue-300 hover:text-gray-800"
+                    className="text-blue-600 hover:text-gray-800"
                   >
                     Logout
                   </button>
@@ -413,7 +412,7 @@ const BlogApp = () => {
             <input
               type="email"
               value={loginForm.email}
-              onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+              onChange={(e) => setLoginForm(prev => ({ ...prev, email: e.target.value }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               required
             />
@@ -423,7 +422,7 @@ const BlogApp = () => {
             <input
               type="password"
               value={loginForm.password}
-              onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+              onChange={(e) => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               required
             />
@@ -445,7 +444,7 @@ const BlogApp = () => {
             <input
               type="text"
               value={registerForm.username}
-              onChange={(e) => setRegisterForm({...registerForm, username: e.target.value})}
+              onChange={(e) => setRegisterForm(prev => ({ ...prev, username: e.target.value }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               required
             />
@@ -455,7 +454,7 @@ const BlogApp = () => {
             <input
               type="email"
               value={registerForm.email}
-              onChange={(e) => setRegisterForm({...registerForm, email: e.target.value})}
+              onChange={(e) => setRegisterForm(prev => ({ ...prev, email: e.target.value }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               required
             />
@@ -465,7 +464,7 @@ const BlogApp = () => {
             <input
               type="password"
               value={registerForm.password}
-              onChange={(e) => setRegisterForm({...registerForm, password: e.target.value})}
+              onChange={(e) => setRegisterForm(prev => ({ ...prev, password: e.target.value }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               required
             />
@@ -487,7 +486,7 @@ const BlogApp = () => {
             <input
               type="text"
               value={postForm.title}
-              onChange={(e) => setPostForm({...postForm, title: e.target.value})}
+              onChange={(e) => setPostForm(prev => ({ ...prev, title: e.target.value }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white"
               required
             />
@@ -496,7 +495,7 @@ const BlogApp = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
             <textarea
               value={postForm.content}
-              onChange={(e) => setPostForm({...postForm, content: e.target.value})}
+              onChange={(e) => setPostForm(prev => ({ ...prev, content: e.target.value }))}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 bg-white"
               rows="4"
               required
