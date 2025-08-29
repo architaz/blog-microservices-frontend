@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { User, MessageSquare, Calendar, Edit3, Trash2, Plus, LogIn, UserPlus } from 'lucide-react';
 
 // API Configuration
-const API_BASE = 'http://localhost'; // Adjust based on your setup
-const USER_SERVICE = `${API_BASE}:8001`;
-const POST_SERVICE = `${API_BASE}:8002`;
-const COMMENT_SERVICE = `${API_BASE}:8003`;
+import API_BASE_URL from './config/api';
+
+// Replace the existing API configuration with:
+const USER_SERVICE = API_BASE_URL.user;
+const POST_SERVICE = API_BASE_URL.post;
+const COMMENT_SERVICE = API_BASE_URL.comment;
 
 const BlogApp = () => {
   // State management
@@ -17,6 +19,8 @@ const BlogApp = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
 
   // Form states
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -28,46 +32,110 @@ const BlogApp = () => {
   const api = {
     // User service calls
     register: async (userData) => {
-      // POST to USER_SERVICE/register
-      console.log('Registering user:', userData);
-      return { id: Date.now(), username: userData.username, email: userData.email };
+      const response = await fetch(`${USER_SERVICE}/api/v1/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: userData.username,
+          email: userData.email,
+          full_name: userData.username, // Using username as full_name for simplicity
+          bio: ''
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+      
+      return response.json();
     },
+
     login: async (credentials) => {
-      // POST to USER_SERVICE/login
-      console.log('Logging in:', credentials);
-      return { id: 1, username: 'demo_user', email: credentials.email, token: 'mock_token' };
+      // Since your backend doesn't have authentication yet, we'll simulate login
+      // by checking if user exists
+      try {
+        const response = await fetch(`${USER_SERVICE}/api/v1/users`);
+        const users = await response.json();
+        const user = users.find(u => u.email === credentials.email);
+        
+        if (user) {
+          return user;
+        } else {
+          throw new Error('User not found');
+        }
+      } catch (error) {
+        throw new Error('Login failed');
+      }
     },
     
     // Post service calls
     getPosts: async () => {
-      // GET from POST_SERVICE/posts
-      return [
-        { id: 1, title: 'Welcome to Our Blog', content: 'This is the first post on our microservices blog!', author_id: 1, created_at: '2024-01-15' },
-        { id: 2, title: 'Microservices Architecture', content: 'Learn about building scalable applications with microservices...', author_id: 1, created_at: '2024-01-16' }
-      ];
+      const response = await fetch(`${POST_SERVICE}/api/v1/posts`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+      return response.json();
     },
+
     createPost: async (postData) => {
-      // POST to POST_SERVICE/posts
-      console.log('Creating post:', postData);
-      return { id: Date.now(), ...postData, author_id: currentUser?.id, created_at: new Date().toISOString().split('T')[0] };
+      const response = await fetch(`${POST_SERVICE}/api/v1/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: postData.title,
+          content: postData.content,
+          author_id: currentUser?.id
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create post');
+      }
+      
+      return response.json();
     },
+
     deletePost: async (postId) => {
-      // DELETE POST_SERVICE/posts/{postId}
-      console.log('Deleting post:', postId);
+      const response = await fetch(`${POST_SERVICE}/api/v1/posts/${postId}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete post');
+      }
     },
     
     // Comment service calls
     getComments: async (postId) => {
-      // GET from COMMENT_SERVICE/posts/{postId}/comments
-      return [
-        { id: 1, content: 'Great post!', author_id: 1, post_id: postId, created_at: '2024-01-17' },
-        { id: 2, content: 'Very informative, thank you!', author_id: 2, post_id: postId, created_at: '2024-01-17' }
-      ];
+      const response = await fetch(`${COMMENT_SERVICE}/api/v1/comments/post/${postId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch comments');
+      }
+      return response.json();
     },
+
     createComment: async (postId, commentData) => {
-      // POST to COMMENT_SERVICE/posts/{postId}/comments
-      console.log('Creating comment:', commentData);
-      return { id: Date.now(), content: commentData.content, author_id: currentUser?.id, post_id: postId, created_at: new Date().toISOString().split('T')[0] };
+      const response = await fetch(`${COMMENT_SERVICE}/api/v1/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: commentData.content,
+          post_id: postId,
+          author_id: currentUser?.id
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create comment');
+      }
+      
+      return response.json();
     }
   };
 
@@ -78,11 +146,13 @@ const BlogApp = () => {
 
   const loadPosts = async () => {
     setLoading(true);
+    setError(null);
     try {
       const postsData = await api.getPosts();
       setPosts(postsData);
     } catch (error) {
       console.error('Error loading posts:', error);
+      setError('Failed to load posts. Please try again.');
     }
     setLoading(false);
   };
